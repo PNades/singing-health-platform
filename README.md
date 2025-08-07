@@ -1,2 +1,2 @@
 # singing-health-platform
-ML singing health detector &amp; science-based singing chatbot
+ML vocal health detector &amp; science-based singing chatbot
