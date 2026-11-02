@@ -61,13 +61,6 @@ The app still starts if one part is missing. Without the model you get chat only
 | `/chat` | POST | Send `{"message": "..."}` and get the coach's reply |
 | `/health` | GET | Shows whether the ML model and RAG system loaded |
 
-## Roadmap
-
-- [ ] Cross-cultural training data spanning Carnatic, Hindustani, Western classical and gospel traditions, to reduce Western bias in vocal AI
-- [ ] Show the mel spectrogram in the results view
-- [ ] Track voice health over time
-- [ ] Pitch training game
-
 ## Author
 
 Prem Nadesan, [@PNades](https://github.com/PNades)
