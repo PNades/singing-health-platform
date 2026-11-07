@@ -124,7 +124,7 @@ Balance sex and voice type as far as recruitment allows. Raters decide labels, s
 
 ### 2.5 Consent and personal data
 - Singers are 18 or older (post-puberty voices, and able to consent for themselves).
-- Consent is given on the collection site (Section 2.8): the consent text, an "I am 18 or older" checkbox, and the singer's typed full name as a signature. The site stores the consent record (singer_id, typed name, consent text version, timestamp) under `consent/` in the private bucket, **separate from the recordings**. Recording metadata never contains a name.
+- Consent is given on the collection site (Section 2.8): the consent text (kept in `docs/data_protocol.md`, currently `consent-v1`; any wording change gets a new version), an "I am 18 or older" checkbox, and the singer's typed full name as a signature. The site stores the consent record (singer_id, typed name, consent text version, timestamp) under `consent/` in the private bucket, **separate from the recordings**. Recording metadata never contains a name.
 - **The site never stores email addresses or payment details.**
   - Emails and the email → singer_id mapping live only in Prem's private recruiting sheet.
   - Payment handles (Venmo/Zelle) live only in the responses of Prem's Google Form. Delete each response once that singer is paid.
@@ -138,10 +138,10 @@ Balance sex and voice type as far as recruitment allows. Raters decide labels, s
 | session_id | string | yes | `s007-1` |
 | recorded_at | ISO 8601 string | yes | `2026-11-20T14:05:00-05:00` |
 | voice_type | `tenor` \| `baritone` \| `alto` \| `soprano` | yes | `alto` |
-| arpeggio_id | string | yes | `alto_F4` |
+| arpeggio_id | string: `<voice_type>_<lowest note>` (`baritone_F3`, `tenor_Ab3`, `alto_F4`, `soprano_Ab4`) | yes | `alto_F4` |
 | condition | `comfortable` \| `pushed` \| `edge` | yes | `pushed` |
 | slot | int 1–16 | yes | `12` |
-| loud | bool | yes | `true` (singer was asked to sing loudly) |
+| loud | bool | yes | `true` (singer was asked to sing loudly: slots 5–6 only) |
 | sex | `F` \| `M` \| `unknown` | yes | `unknown` |
 | tradition | free text | no | `Carnatic` (recorded for v3, unused in v2) |
 | device | `phone` \| `laptop` \| `tablet` \| `desktop`, plus mic `built-in` \| `wired headset` \| `USB mic` \| `other` (from a dropdown) | yes | `phone / built-in` |
