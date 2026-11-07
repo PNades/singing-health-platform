@@ -1,12 +1,12 @@
 # StrainlessAI: recording protocol for singers
 
-Consent version `consent-v1` · 2026-11-07 · Source: `docs/SPEC_v2.md` Part 2
+Consent version `consent-v2` · 2026-11-07 · Source: `docs/SPEC_v2.md` Part 2
 
 ## What this is
 
 StrainlessAI listens to one short sung exercise and says whether it sounds **healthy** or **strained**. It is an independent project by Prem Nadesan, a Purdue student. It is not a Purdue-sponsored study. To build it, we need many singers recording the same exercise, sometimes easily and sometimes with extra effort. Two raters (Prem and a voice teacher) listen to every take without knowing who sang it or what they were asked to do, and rate how much strain they hear. Those ratings teach the model.
 
-You record **16 short takes** on your own phone or laptop through a private link. It takes about **20–30 minutes**, and you can stop and come back later. You're paid **$10** once all 16 takes are submitted.
+You record **16 short takes** on your own phone or laptop through a private link. It takes **about 10 minutes**, and you can stop and come back later. You're paid **$10** once all 16 takes are submitted.
 
 ## Before you start
 
@@ -52,13 +52,43 @@ Slots 5–6 and 15–16 matter: they teach the model that loud isn't the same as
 
 Each take is checked within a few seconds. An accepted take gets a ✓, and you can play it back, re-record it or delete it. A rejected take isn't kept, and the site tells you why (for example, too noisy, clipped, or a note missing) so you can try again. Your progress is saved after every accepted take. When all 16 are accepted, tap **Submit**. This locks the session, and you get a **completion code** and a link to the payment form.
 
-## Consent (shown on the site, version `consent-v1`)
+## Invite email
+
+Send one email per recruit, replacing `{link}` with their personal link from `data/invites.csv`. Note the email → singer_id pair only in the private recruiting sheet.
+
+```text
+Subject: Record a 10-minute singing exercise for StrainlessAI ($10)
+
+Hi,
+
+I'm Prem Nadesan, a Purdue student building StrainlessAI, a tool that listens
+to a short sung exercise and says whether the singing sounds healthy or
+strained. It's my own independent project, not a Purdue study.
+
+Would you record for it? It takes about 10 minutes: 16 short takes of one
+arpeggio on your own phone or laptop. You can stop and come back anytime with
+the same link. Once all 16 takes are in, you'll get a completion code. Enter
+it in a short form and I'll send $10 by Venmo or Zelle.
+
+All you need is a quiet room. Please don't use Bluetooth earbuds (they cut the
+sound quality); your phone's or laptop's own mic is perfect.
+
+Your personal link (please don't share it; it works for 30 days):
+{link}
+
+Questions? Just reply to this email.
+
+Thanks!
+Prem
+```
+
+## Consent (shown on the site, version `consent-v2`)
 
 > **StrainlessAI singing recordings: consent**
 >
 > You're invited to record 16 short takes of a sung exercise to help build StrainlessAI, a tool that estimates whether singing sounds healthy or strained. StrainlessAI is an independent project by Prem Nadesan, a Purdue student. It is not a Purdue-sponsored study. StrainlessAI is not a medical service, and nothing in this session is a medical assessment of your voice.
 >
-> **What you'll do.** Sing one short arpeggio 16 times on your own device, taking about 20–30 minutes. Some takes ask you to sing with extra effort. Stop if anything hurts or feels wrong. You never have to push through discomfort. Payment ($10) is made after all 16 takes are submitted.
+> **What you'll do.** Sing one short arpeggio 16 times on your own device, taking about 10 minutes. Some takes ask you to sing with extra effort. Stop if anything hurts or feels wrong. You never have to push through discomfort. Payment ($10) is made after all 16 takes are submitted.
 >
 > **What is kept.** Your accepted recordings, the details you enter (voice type, and optionally sex and singing tradition), your device and microphone type, and technical browser audio settings. Recordings are labeled with a random ID, never your name. They are stored in a private cloud bucket, listened to by the project's raters, and used to train and test the StrainlessAI model. They are not made public. Your typed name and this consent are stored separately from your recordings. This site does not store your email address or payment details.
 >
@@ -66,7 +96,7 @@ Each take is checked within a few seconds. An accepted take gets a ✓, and you 
 >
 > By ticking the box and typing your full name, you confirm that you are 18 or older, that you have read this, and that you agree to take part.
 
-The site stores the consent record (singer_id, typed name, consent version, timestamp) under `consent/` in the private bucket, separate from the recordings. Any change to the text above needs a new version (`consent-v2`, ...).
+The site stores the consent record (singer_id, typed name, consent version, timestamp) under `consent/` in the private bucket, separate from the recordings. Any change to the text above needs a new version (`consent-v3`, ...). `consent-v2` (2026-11-07) changed the time estimate from 20–30 minutes to about 10 minutes; `consent-v1` was never shown to a singer.
 
 ## Your data
 

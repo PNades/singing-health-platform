@@ -1,7 +1,15 @@
 /* Collection site. Mobile first; meets spec 1.1 at 375 / 768 / 1280 px:
    16px+ body text, 44px+ tap targets, AA contrast, nothing hover-only,
-   primary action in a sticky bottom bar. */
+   primary action in a sticky bottom bar.
+
+   Layout: <main> spans the window with a 16px gutter. Every screen's content
+   sits in one centred column (--col), the same column as the header. The
+   bottom bar breaks out of the gutter to span the full window width, and
+   centres its buttons on that column: the primary button is full width under
+   600px and a fixed 320px from 600px up. */
 :root {
+  --col: 728px;
+  --primary-w: 320px;
   --bg: #f7f6f2;
   --surface: #ffffff;
   --text: #1c1b22;
@@ -28,6 +36,9 @@ body {
   color: var(--text);
   font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
+  /* Header + main fill the window, so a short screen's bar sits on the bottom edge. */
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
 }
 h1 { font-size: 1.55rem; line-height: 1.25; margin: 0.6rem 0 0.8rem; }
 h2 { font-size: 1.25rem; line-height: 1.3; margin: 0; }
@@ -41,26 +52,37 @@ a { color: var(--accent); }
 
 .top { background: var(--surface); border-bottom: 1px solid var(--line); }
 .top-in {
-  max-width: 760px; margin: 0 auto; padding: 12px 16px;
+  max-width: calc(var(--col) + 32px); margin: 0 auto; padding: 12px 16px;
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
 }
 .brand { font-weight: 650; }
 .progress { font-weight: 600; color: var(--accent); white-space: nowrap; }
 
-main { max-width: 760px; margin: 0 auto; padding: 0 16px; }
-.screen { min-height: calc(100vh - 60px); display: flex; flex-direction: column; }
+main { padding: 0 16px; flex: 1; display: flex; flex-direction: column; }
+.screen { flex: 1; display: flex; flex-direction: column; }
+.screen > :not(.bar) { width: 100%; max-width: var(--col); margin-left: auto; margin-right: auto; }
 .screen > .bar { margin-top: auto; }
 
-/* Sticky action bar: the primary button stays visible on phones (spec 1.1). */
+/* Sticky action bar: the primary button stays visible on phones (spec 1.1).
+   The -16px margins cancel <main>'s gutter, so the bar spans the window. */
 .bar {
   position: sticky; bottom: 0; z-index: 5;
-  display: flex; gap: 12px; flex-wrap: wrap;
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
   margin: 1.2rem -16px 0;
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
   background: var(--surface);
   border-top: 1px solid var(--line);
 }
-.bar > .btn { flex: 1 1 140px; }
+/* Primary on its own row, first; secondary buttons share the row below. */
+.bar > .btn { flex: 1 1 0; min-width: 0; }
+.bar > .btn.primary { order: -1; flex: 0 0 100%; }
+@media (min-width: 600px) {
+  .bar > .btn { flex: 0 1 auto; min-width: 150px; }
+  .bar > .btn.primary {
+    flex: 0 0 var(--primary-w); width: var(--primary-w);
+    margin-left: calc((100% - var(--primary-w)) / 2); margin-right: calc((100% - var(--primary-w)) / 2);
+  }
+}
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -137,6 +159,7 @@ input[type="text"]:focus, select:focus { border-color: var(--accent); }
 .cond h2 { font-size: 1.1rem; }
 .cond .warning { margin-top: 0.4rem; }
 .slots { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.slots li { max-width: none; }
 .slot {
   width: 100%; display: flex; align-items: center; gap: 12px;
   min-height: 60px; padding: 10px 12px; text-align: left;
@@ -200,7 +223,4 @@ audio { width: 100%; margin: 0.4rem 0; }
   .overlay { align-items: center; padding: 24px; }
   .sheet { max-width: 600px; height: auto; max-height: 90vh; border-radius: 16px; }
   .sheet.small { margin-top: 0; border-radius: 16px; max-width: 480px; }
-  .bar > .btn { flex: 0 1 auto; min-width: 160px; }
-  .screen > .bar { justify-content: flex-end; }
-  .sheet .bar { justify-content: flex-end; }
 }

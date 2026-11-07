@@ -17,6 +17,7 @@ import numpy as np
 import pytest
 from scipy.io import wavfile
 
+from ml.collect import consent
 from ml.collect.app import create_app
 from ml.collect.session import token_hash
 from ml.collect.storage import Conflict, LocalStore, create_json, get_json, put_json
@@ -27,6 +28,7 @@ TOKEN = "tok_" + "a" * 28
 FORM = "https://docs.google.com/forms/d/e/example/viewform"
 H = {"X-Invite-Token": TOKEN}
 NAME = "Jordan Example Singer"
+CONSENT_VERSION = consent.load()[0]
 PROFILE = {"voice_type": "alto", "sex": "", "device": "laptop", "mic": "USB mic", "tradition": ""}
 
 
@@ -66,7 +68,7 @@ def upload(client, path, data: bytes | None = None, ts=None):
 def setup_session(client, store):
     """Consent + profile + a passed mic check (set directly: the real check is tested separately)."""
     assert client.get("/api/state", headers=H).status_code == 200
-    r = client.post("/api/consent", json={"name": NAME, "age_ok": True, "version": "consent-v1"}, headers=H)
+    r = client.post("/api/consent", json={"name": NAME, "age_ok": True, "version": CONSENT_VERSION}, headers=H)
     assert r.status_code == 200, r.json
     assert client.post("/api/profile", json=PROFILE, headers=H).status_code == 200
     s, gen = get_json(store, "sessions/s007.json")
@@ -118,7 +120,7 @@ def test_state_creates_session_once(env):
     r = client.get("/api/state", headers=H)
     body = r.json
     assert body["session"]["singer_id"] == "s007" and body["session"]["status"] == "open"
-    assert len(body["slots"]) == 16 and body["consent"]["version"] == "consent-v1"
+    assert len(body["slots"]) == 16 and body["consent"]["version"] == CONSENT_VERSION
     assert body["payment_form_url"] is None  # only after submit
     assert body["arpeggios"]["alto"]["notes"][0] == "F4"
     assert "upload_times" not in body["session"]
@@ -131,16 +133,16 @@ def test_state_creates_session_once(env):
 
 def test_consent_is_stored_apart_from_the_session(env):
     client, store, *_ = env
-    for bad in ({"name": NAME, "age_ok": False, "version": "consent-v1"},
-                {"name": " ", "age_ok": True, "version": "consent-v1"},
+    for bad in ({"name": NAME, "age_ok": False, "version": CONSENT_VERSION},
+                {"name": " ", "age_ok": True, "version": CONSENT_VERSION},
                 {"name": NAME, "age_ok": True, "version": "consent-v0"}):
         assert client.post("/api/consent", json=bad, headers=H).status_code == 400
     assert objects(store, "consent/") == []
     setup_session(client, store)
     rec = get_json(store, "consent/s007.json")[0]
-    assert rec["name"] == NAME and rec["consent_version"] == "consent-v1" and rec["singer_id"] == "s007"
+    assert rec["name"] == NAME and rec["consent_version"] == CONSENT_VERSION and rec["singer_id"] == "s007"
     s = get_json(store, "sessions/s007.json")[0]
-    assert s["consent_version"] == "consent-v1" and NAME not in json.dumps(s)
+    assert s["consent_version"] == CONSENT_VERSION and NAME not in json.dumps(s)
 
 
 def test_profile_requires_consent(env):
@@ -155,7 +157,7 @@ def test_profile_requires_consent(env):
 def test_take_needs_mic_check(env):
     client, store, *_ = env
     client.get("/api/state", headers=H)
-    client.post("/api/consent", json={"name": NAME, "age_ok": True, "version": "consent-v1"}, headers=H)
+    client.post("/api/consent", json={"name": NAME, "age_ok": True, "version": CONSENT_VERSION}, headers=H)
     client.post("/api/profile", json=PROFILE, headers=H)
     r = upload(client, "/api/takes/1")
     assert r.status_code == 400 and r.json["error"] == "no_mic_check"
@@ -299,7 +301,7 @@ def test_mic_check_uses_real_measurements(tmp_path):
     create_json(store, f"invites/{token_hash(TOKEN)}.json",
                 {"singer_id": "s007", "created_at": T0.isoformat(), "revoked": False})
     client.get("/api/state", headers=H)
-    client.post("/api/consent", json={"name": NAME, "age_ok": True, "version": "consent-v1"}, headers=H)
+    client.post("/api/consent", json={"name": NAME, "age_ok": True, "version": CONSENT_VERSION}, headers=H)
     client.post("/api/profile", json=PROFILE, headers=H)
 
     silent = np.zeros(4 * 44_100, dtype=np.int16)
@@ -352,6 +354,16 @@ def test_local_store_generations():
     assert get_json(st, "sessions/x.json") == ({"a": 2}, g2)
     with pytest.raises(ValueError):
         st.get_bytes("../outside")
+
+
+def test_collect_local_forces_local_store(monkeypatch, tmp_path):
+    from ml.collect.storage import store_from_env
+
+    monkeypatch.setenv("COLLECT_BUCKET", "some-real-bucket")
+    monkeypatch.setenv("COLLECT_LOCAL", "1")
+    monkeypatch.setenv("COLLECT_LOCAL_DIR", str(tmp_path))
+    st = store_from_env()
+    assert isinstance(st, LocalStore) and st.root == tmp_path
 
 
 def test_service_imports_stay_slim():

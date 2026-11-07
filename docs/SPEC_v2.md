@@ -137,7 +137,7 @@ Balance sex and voice type as far as recruitment allows. Raters decide labels, s
 
 ### 2.5 Consent and personal data
 - Singers are 18 or older (post-puberty voices, and able to consent for themselves).
-- Consent is given on the collection site (Section 2.8): the consent text (kept in `docs/data_protocol.md`, currently `consent-v1`; any wording change gets a new version), an "I am 18 or older" checkbox, and the singer's typed full name as a signature. The site stores the consent record (singer_id, typed name, consent text version, timestamp) under `consent/` in the private bucket, **separate from the recordings**. Recording metadata never contains a name.
+- Consent is given on the collection site (Section 2.8): the consent text (kept in `docs/data_protocol.md`, currently `consent-v2`; any wording change gets a new version), an "I am 18 or older" checkbox, and the singer's typed full name as a signature. The site stores the consent record (singer_id, typed name, consent text version, timestamp) under `consent/` in the private bucket, **separate from the recordings**. Recording metadata never contains a name.
 - **The site never stores email addresses or payment details.**
   - Emails and the email → singer_id mapping live only in Prem's private recruiting sheet.
   - Payment handles (Venmo/Zelle) live only in the responses of Prem's Google Form. Delete each response once that singer is paid.
@@ -192,7 +192,7 @@ A small private website where invited singers record their 16 takes on their own
 - Prem emails each recruit their personal link (`https://<collect-url>/s/<token>`). The token is the only login. An invite can be revoked by deleting it; a link stops working 30 days after it's created. [TUNE]
 
 **Singer flow**
-1. **Welcome:** what the session involves (about 20–30 minutes, 16 short takes, can stop and come back), and that pay ($10) follows completion.
+1. **Welcome:** what the session involves (about 10 minutes, 16 short takes, can stop and come back), and that pay ($10) follows completion.
 2. **Consent:** Section 2.5.
 3. **About you:** voice type (four cards with range and a play button for each example), sex (optional), device and mic (dropdowns), tradition (optional, free text).
 4. **Mic check:** a level meter, then a short test take checked for clipping, noise and bandwidth (Section 5.3). Failures say what to fix (move back, quieter room, don't use Bluetooth earbuds) before any real take. The test take is one practice arpeggio recorded with the Section 5.2 flow; only the clipping, noise, bandwidth and pre-roll checks apply to it, and it is never stored.

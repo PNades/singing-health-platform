@@ -137,11 +137,16 @@ class GCSStore:
 
 
 def store_from_env(local: bool = False) -> Store:
-    """GCSStore(COLLECT_BUCKET) if set (and local is False), else LocalStore(data/collect_dev)."""
+    """GCSStore(COLLECT_BUCKET) if set, else LocalStore(data/collect_dev).
+
+    local=True or the environment variable COLLECT_LOCAL=1 forces the local
+    store even when .env sets COLLECT_BUCKET (for running the site on a PC).
+    """
     from dotenv import load_dotenv
 
     load_dotenv(ROOT / ".env")
     bucket = os.environ.get("COLLECT_BUCKET")
+    local = local or os.environ.get("COLLECT_LOCAL") == "1"
     if bucket and not local:
         return GCSStore(bucket)
     return LocalStore(os.environ.get("COLLECT_LOCAL_DIR", LOCAL_DEFAULT))
