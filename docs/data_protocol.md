@@ -82,7 +82,7 @@ Every accepted take is one mono WAV file (16-bit PCM, your device's own sample r
 | Field | Set by | Meaning | Example |
 |---|---|---|---|
 | `clip_id` | site | Random ID for this take | `c0042` |
-| `singer_id` | site | Random ID for you, from your invite | `s007` |
+| `singer_id` | site | ID for you from your invite (never your name) | `s007` |
 | `session_id` | site | Your recording session | `s007-1` |
 | `recorded_at` | site | Date and time, ISO 8601 | `2026-11-20T14:05:00-05:00` |
 | `voice_type` | you | `tenor`, `baritone`, `alto` or `soprano` | `alto` |

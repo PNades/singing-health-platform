@@ -26,6 +26,15 @@ dependencies = [
 ]
 
 [dependency-groups]
+collect = [
+    "flask>=3.1.3",
+    "google-cloud-storage>=3.17.1",
+    "gunicorn>=26.2.0",
+    "numpy>=2.5.4",
+    "praat-parselmouth>=0.4.7",
+    "python-dotenv>=1.2.4",
+    "scipy>=1.18.1",
+]
 dev = [
     "pytest>=9.2.0",
 ]

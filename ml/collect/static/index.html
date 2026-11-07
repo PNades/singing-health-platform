@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>StrainlessAI recordings</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <span class="brand">StrainlessAI recordings</span>
+    <span class="progress" id="progress" hidden></span>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Loading -->
+  <section class="screen" data-screen="loading">
+    <p class="muted">Loading…</p>
+  </section>
+
+  <!-- Bad / expired link -->
+  <section class="screen" data-screen="error" hidden>
+    <h1>This link doesn't work</h1>
+    <p id="error-text"></p>
+  </section>
+
+  <!-- 1. Welcome -->
+  <section class="screen" data-screen="welcome" hidden>
+    <h1>Thanks for helping build StrainlessAI</h1>
+    <p>StrainlessAI listens to one short sung exercise and says whether it sounds healthy or strained. To teach it, we need many singers recording the same exercise.</p>
+    <ul class="facts">
+      <li><strong>About 20–30 minutes</strong> for 16 short takes of one arpeggio.</li>
+      <li><strong>You can stop and come back</strong> any time with the same link. Every accepted take is saved.</li>
+      <li><strong>You're paid $10</strong> after all 16 takes are submitted.</li>
+      <li>You'll need a quiet room and your device's built-in mic, a wired headset or a USB mic. <strong>Not Bluetooth earbuds.</strong></li>
+    </ul>
+    <div class="bar"><button class="btn primary" data-action="go-consent">Start</button></div>
+  </section>
+
+  <!-- 2. Consent -->
+  <section class="screen" data-screen="consent" hidden>
+    <h1>Consent</h1>
+    <div class="consent-text" id="consent-text"></div>
+    <label class="check"><input type="checkbox" id="age-ok"> <span>I am 18 or older</span></label>
+    <label class="field">
+      <span>Type your full name to sign</span>
+      <input type="text" id="consent-name" autocomplete="name" maxlength="200">
+    </label>
+    <p class="msg error" id="consent-msg" role="alert" hidden></p>
+    <div class="bar"><button class="btn primary" data-action="give-consent" id="consent-btn" disabled>I agree</button></div>
+  </section>
+
+  <!-- 3. About you -->
+  <section class="screen" data-screen="about" hidden>
+    <h1>About you</h1>
+    <fieldset class="group">
+      <legend>Voice type</legend>
+      <p class="muted">Pick the arpeggio that sits most comfortably. Basses use baritone. Tap ▶ to hear each one.</p>
+      <div class="voices" id="voices"></div>
+      <p class="muted small" id="voice-locked" hidden>Your voice type is locked because you already have accepted takes.</p>
+    </fieldset>
+    <label class="field">
+      <span>Sex <em>(optional)</em></span>
+      <select id="sex">
+        <option value="unknown">Prefer not to say</option>
+        <option value="F">Female</option>
+        <option value="M">Male</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Device you're recording on</span>
+      <select id="device">
+        <option value="">Choose…</option>
+        <option value="phone">Phone</option>
+        <option value="laptop">Laptop</option>
+        <option value="tablet">Tablet</option>
+        <option value="desktop">Desktop computer</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Microphone</span>
+      <select id="mic">
+        <option value="">Choose…</option>
+        <option value="built-in">Built into the device</option>
+        <option value="wired headset">Wired headset</option>
+        <option value="USB mic">USB mic</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Singing tradition <em>(optional)</em></span>
+      <input type="text" id="tradition" maxlength="100" placeholder="e.g. classical, musical theatre, Carnatic">
+    </label>
+    <p class="msg error" id="about-msg" role="alert" hidden></p>
+    <div class="bar"><button class="btn primary" data-action="save-profile">Continue</button></div>
+  </section>
+
+  <!-- 4. Mic check -->
+  <section class="screen" data-screen="mic" hidden>
+    <h1>Mic check</h1>
+    <p>One practice take, to check your room and mic before the real takes. It isn't saved.</p>
+    <ol class="steps">
+      <li>Sit or stand about an arm's length from the mic, and keep that distance for every take.</li>
+      <li>Tap <strong>Record</strong>. You'll hear the starting note and 3 clicks.</li>
+      <li>Wait while the screen says <strong>Wait…</strong>, then sing the arpeggio when it says <strong>Sing now</strong>.</li>
+    </ol>
+    <div class="recorder" data-recorder="mic"></div>
+    <p class="msg" id="mic-msg" role="status" hidden></p>
+    <div class="bar" id="mic-bar"></div>
+  </section>
+
+  <!-- 5. Session board -->
+  <section class="screen" data-screen="board" hidden>
+    <h1>Your 16 takes</h1>
+    <p>Record the takes <strong>in order</strong>: comfortable first, pushed last, so the effortful takes can't tire your voice before the easy ones. <strong>The notes never change; only the effort does.</strong></p>
+    <div class="row-btns">
+      <button class="btn secondary" data-action="hear-example">▶ Hear example</button>
+      <button class="btn secondary" data-action="edit-profile">Change my details</button>
+      <button class="btn secondary" data-action="redo-mic">Redo mic check</button>
+    </div>
+    <div id="slots"></div>
+    <div class="bar" id="board-bar"></div>
+  </section>
+
+  <!-- 6. Done -->
+  <section class="screen" data-screen="done" hidden>
+    <h1>Thank you! You're done.</h1>
+    <p>Your session is submitted. Your completion code is:</p>
+    <p class="code" id="code"></p>
+    <div class="row-btns"><button class="btn secondary" data-action="copy-code" id="copy-btn">Copy code</button></div>
+    <p id="pay-text">Enter this code in the payment form to get your $10.</p>
+    <div class="bar"><a class="btn primary" id="pay-link" target="_blank" rel="noopener noreferrer">Open the payment form</a></div>
+  </section>
+</main>
+
+<!-- Slot panel -->
+<div class="overlay" id="panel" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+    <div class="sheet-head">
+      <h2 id="panel-title"></h2>
+      <button class="btn icon" data-action="close-panel" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-body">
+      <p class="instruction" id="panel-instruction"></p>
+      <p class="warning" id="panel-warning" hidden></p>
+      <p class="status-line" id="panel-status"></p>
+      <div id="panel-playback" hidden>
+        <audio id="panel-audio" controls preload="none"></audio>
+      </div>
+      <div class="recorder" data-recorder="slot"></div>
+    </div>
+    <div class="bar" id="panel-bar"></div>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="overlay" id="confirm" hidden>
+  <div class="sheet small" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="sheet-body">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-text"></p>
+    </div>
+    <div class="bar">
+      <button class="btn secondary" id="confirm-no">Cancel</button>
+      <button class="btn primary" id="confirm-yes">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Microphone help -->
+<div class="overlay" id="mic-help" hidden>
+  <div class="sheet small" role="alertdialog" aria-modal="true" aria-labelledby="mic-help-title">
+    <div class="sheet-body">
+      <h2 id="mic-help-title">Microphone is blocked</h2>
+      <div id="mic-help-text"></div>
+    </div>
+    <div class="bar"><button class="btn primary" data-action="close-mic-help">OK</button></div>
+  </div>
+</div>
+</body>
+</html>

@@ -163,6 +163,7 @@ Balance sex and voice type as far as recruitment allows. Raters decide labels, s
 | sample_rate | int | yes | `48000` |
 | duration_s | float | yes | `9.8` |
 | finder_low, finder_high | note name | no | `E3`, `A5` |
+| quality_flags | list of Section 5.3 codes | no | `["noise_moderate"]` (flag-only codes on an accepted take) |
 
 The WAV is mono, 16-bit PCM, at the device's native sample rate.
 
@@ -194,8 +195,8 @@ A small private website where invited singers record their 16 takes on their own
 1. **Welcome:** what the session involves (about 20–30 minutes, 16 short takes, can stop and come back), and that pay ($10) follows completion.
 2. **Consent:** Section 2.5.
 3. **About you:** voice type (four cards with range and a play button for each example), sex (optional), device and mic (dropdowns), tradition (optional, free text).
-4. **Mic check:** a level meter, then a short test take checked for clipping, noise and bandwidth (Section 5.3). Failures say what to fix (move back, quieter room, don't use Bluetooth earbuds) before any real take.
-5. **Session board:** 16 slots in order, grouped by condition, each showing its instruction and status: *empty*, *checking*, *accepted* (✓) or *rejected* (with the reason).
+4. **Mic check:** a level meter, then a short test take checked for clipping, noise and bandwidth (Section 5.3). Failures say what to fix (move back, quieter room, don't use Bluetooth earbuds) before any real take. The test take is one practice arpeggio recorded with the Section 5.2 flow; only the clipping, noise, bandwidth and pre-roll checks apply to it, and it is never stored.
+5. **Session board:** 16 slots in order, grouped by condition, each showing its instruction and status: *empty*, *checking*, *accepted* (✓) or *rejected* (with the reason). The board asks singers to record in order, but any slot can be recorded at any time (decided 2026-11-07).
    - Tapping a slot opens it. The singer can **play back** an accepted take, **re-record** it (the new take replaces the old one once it's accepted), or **delete** it (the slot goes back to empty).
    - **While recording, a Restart button** throws away the take in progress and starts the count-in again. Nothing is uploaded.
    - Recording follows Section 5.2. When the singer stops, the take uploads and runs the Section 5.3 checks; the result appears within a few seconds. A rejected take is discarded (not stored) with its reason shown, and the slot stays open for another try.
@@ -211,14 +212,17 @@ A small private website where invited singers record their 16 takes on their own
 |---|---|
 | `invites/` | token hash → singer_id, created_at, revoked |
 | `consent/<singer_id>.json` | consent record (Section 2.5) |
-| `sessions/<singer_id>.json` | status (`open` / `submitted`), slot statuses, completion code, rejected-take count per slot |
-| `takes/<singer_id>/<clip_id>.wav` and `.json` | accepted takes only, with Section 2.6 metadata |
+| `sessions/<singer_id>.json` | status (`open` / `submitted`), slot statuses, completion code, rejected-take count per slot, upload times of the last hour (the upload limit) |
+| `takes/<singer_id>/<clip_id>.wav` and `.json` | accepted takes only, with Section 2.6 metadata (plus `quality_flags`) |
+| `codes/<code>` | empty marker, created only if absent, so every completion code is unique |
+
+`clip_id` is random (`c` + 10 characters), so it never reveals the singer, slot or condition to a blind rater (Section 2.7). Session writes use Cloud Storage generation preconditions, so two open tabs can't overwrite each other.
 
 **Tools on Prem's machine**
 - `ml/collect/report.py`: one line per session (singer_id, accepted slots, submitted, completion code).
 - `ml/collect/pull.py`: downloads every submitted session's takes into `data/raw/`. Only submitted sessions are pulled, never open ones.
 
-**Security and limits:** HTTPS (Cloud Run), private bucket written only by the service's own identity, uploads limited to WAV under 16 MB, 30 uploads per singer per hour (enough for re-records), no public listing of anything.
+**Security and limits:** HTTPS (Cloud Run), private bucket written only by the service's own identity, uploads limited to WAV under 16 MB, 30 uploads per singer per hour (enough for re-records; counted in the session file so the limit holds across Cloud Run instances), no public listing of anything. The invite token is sent in a request header after the page loads, and every response sets `Referrer-Policy: no-referrer`, so the link never leaks to the payment form.
 
 **Cost:** Google Cloud billing must be on, with a $10/month budget alert set first. Cloud Run scales to zero and storage for ~1,000 short WAVs is a few GB, so expect well under a dollar a month. Singer payments ($10 each) are the real cost.
 
