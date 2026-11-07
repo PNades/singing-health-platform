@@ -1,0 +1,31 @@
+[project]
+name = "strainlessai"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastembed>=0.9.1",
+    "flask>=3.1.3",
+    "flask-cors>=6.0.5",
+    "flask-limiter>=4.1.1",
+    "google-cloud-storage>=3.17.1",
+    "groq>=1.7.0",
+    "gunicorn>=26.2.0",
+    "joblib>=1.6.0",
+    "lightgbm>=4.7.0",
+    "matplotlib>=3.11.2",
+    "mosqito>=1.2.1",
+    "numpy>=2.5.4",
+    "opensmile>=2.6.0",
+    "pandas>=3.1.1",
+    "praat-parselmouth>=0.4.7",
+    "pyarrow>=26.0.1",
+    "python-dotenv>=1.2.4",
+    "qdrant-client>=1.20.0",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
