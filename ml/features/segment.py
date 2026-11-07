@@ -25,7 +25,7 @@ Steps:
 Segmentation only reports what it found. Whether a take is complete, in key
 or long enough is decided by api/quality.py.
 
-This module must not import matplotlib (api/quality.py imports it). Plots are
+This module must not import matplotlib (api/quality.py imports this module). Plots are
 in ml/features/plot_segments.py.
 """
 

@@ -313,6 +313,9 @@ All thresholds live in one `QUALITY_CONFIG` dict in `api/quality.py` (the only p
 
 - Reject → no score; the user sees a specific re-record message.
 - Noise flag → the band is shown as Borderline whatever the score, with "Recording was noisy, so this result is less certain." [DEFAULT]
+- Interface: `check(wav, sr, voice_type, track_settings=None)` → `{ok, flags, message}`. `flags` holds every failed check's code, in priority order: rejects `bandwidth_low_rate`, `bandwidth_cliff`, `clipping`, `noise_high`, `note_short`, `incomplete`, `intervals_off`, `key_off`; flags `noise_moderate`, `preroll_voice`. `message` is the re-record text of the first reject, else null. The sample rate checked is the lower of the WAV's and `track_settings.sampleRate`.
+- Bandwidth cliff: in the long-term spectrum of the sung notes, a drop of ≥ 25 dB between the bands 250–1000 Hz below and above some frequency ≤ 8 kHz, **and** the 8.5–11 kHz band ≥ 35 dB below 1–4 kHz. A gradual roll-off (a dark voice or mic) can be that quiet up high without a cliff, and passes. [TUNE]
+- Pre-roll voice: ≥ 0.1 s of stable pitch (segmentation's pitch levels) in the pre-roll. A pre-roll of pure digital silence counts as infinite SNR, a pass.
 
 ---
 
@@ -326,7 +329,7 @@ All thresholds live in one `QUALITY_CONFIG` dict in `api/quality.py` (the only p
 - Keep the steady core of each note: drop the first and last 15% of the note, smooth the pitch over about 200 ms (at least one vibrato cycle at 5.5 Hz, so natural vibrato doesn't count as a glide), then keep the longest unbroken stretch within 0.5 semitone of the note's median. Anything outside that (scoops, slides, drift) is a glide and is cut. [TUNE]
 - Output per note: index (1–7; note 4 is the held top note), `start` and `end` of the steady core (used by Section 6.2 and the note-length check in 5.3), `note_start` and `note_end` of the whole note, median F0 of the core (Hz; the median of the ~200 ms-smoothed pitch, i.e. the centre of any vibrato, since a raw median is biased when the core isn't a whole number of vibrato cycles), and that F0 in semitones relative to the **target** root of the voice type's arpeggio (so a take sung 3 semitones high reads about +3 on note 1).
 - Per clip: `key_offset_st`, the median difference between the sung notes and the target pattern in semitones (used by the key check in 5.3), and `tempo_bpm`, the singer's measured tempo: the median of onset-to-onset time ÷ beats over pairs of consecutive notes (the top note counts 2 beats; pairs across a skipped note aren't used). `tempo_bpm` is stored for diagnostics and is **not** a model feature.
-- `ml/features/segment.py` never imports matplotlib (`api/quality.py` imports it). Diagnostic plots of the note boundaries come from `ml/features/plot_segments.py`.
+- `ml/features/segment.py` never imports matplotlib (`api/quality.py` imports this module, and `api/` must never load matplotlib). Diagnostic plots of the note boundaries come from `ml/features/plot_segments.py`.
 
 ### 6.2 Per-note features (`ml/features/extract.py`)
 Analysis at 22,050 Hz unless stated; the original is downsampled with a proper anti-alias filter (scipy `resample_poly`).
@@ -359,6 +362,7 @@ For each per-note feature: **mean**, **max**, **slope** against note F0 in semit
 
 ### 7.1 Split (`data/splits.json`)
 - 8–10 held-out test singers (12–15 at the larger target), balanced by sex and voice type. Fixed once; never changed.
+- Format: `{"test": [singer_id, …], "train": [singer_id, …]}` [DEFAULT]; read through `ml/splits.py`.
 - Code must refuse to read test singers unless run with `--final`.
 
 ### 7.2 Training
