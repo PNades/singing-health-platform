@@ -15,12 +15,12 @@ CLAUDE.md
 pyproject.toml, uv.lock   uv project (one project at the top level)
 docs/      SPEC_v2.md, progress.md, data_protocol.md, model_card.md, rag/, research/
 api/       Flask JSON API: app.py, llm.py, coach.py, quality.py, static/audio/ (example arpeggios)
-ml/        features and training: collect/, rate/, features/ (segment.py, extract.py), train/
+ml/        features and training: arpeggios.py (arpeggio definitions, one home), collect/, rate/, features/ (segment.py, extract.py), train/
 rag/       retrieval: sections.json, paraphrases.json, ingest.py, retrieve.py, config.json, eval/
 web/       React app: Vite + React + TypeScript + Tailwind + shadcn/ui (built to web/dist, gitignored)
 models/    strain_v2.joblib (small, committed)
 reports/   generated plots and tables (gitignored)
-scripts/   one-off checks (check_llm.py, quality_report.py, compare_v1_v2.py, make_placeholder_examples.py)
+scripts/   one-off checks (check_llm.py, quality_report.py, compare_v1_v2.py, make_synth_examples.py)
 data/      recordings: raw/, labels/, splits.json, features.parquet. NEVER committed.
 ```
 
@@ -50,7 +50,7 @@ From the build guide (kept outside the repo). Work in this order, and log each f
 
 1. Part 1 setup (done)
 2. Step 2a: docs/data_protocol.md
-3. Step 2b: example arpeggios (synthesized placeholders now, sung examples before real singers)
+3. Step 2b: example arpeggios (synthesized, used for all of data collection; sung examples for the app come in Step 8a)
 4. Step 2c: Part 5 quality checks and Step 6a note segmentation
 5. Step 2d: collection site (ml/collect/, separate Cloud Run service strainless-collect)
 6. Step 2e: pilot run with 3 invites
